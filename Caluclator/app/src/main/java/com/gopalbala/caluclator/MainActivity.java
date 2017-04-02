@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +37,8 @@ public class MainActivity extends AppCompatActivity {
     Button buttonDecimal;
 
     Stack<Double> operandStack = new Stack<>();
-    List<String> inputList1 = new ArrayList<>();
-    List<String> inputList2 = new ArrayList<>();
+    ArrayList<String> inputList1 = new ArrayList<>();
+    ArrayList<String> inputList2 = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         buttonDel = (Button) findViewById(R.id.buttonDel);
-        buttonDel.setOnClickListener(view ->{
+        buttonDel.setOnClickListener(view -> {
             inputText.setText("");
             resultText.setText("");
             inputList1.clear();
@@ -117,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
             operation = button.getText().toString();
             String inputString = inputText.getText().toString();
             String previousOperation = inputString.substring(inputString.length() - 1);
+
             if (previousOperation.equals("+") ||
                     previousOperation.equals("-") ||
                     previousOperation.equals("x") ||
@@ -128,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!resultText.getText().toString().isEmpty()) {
                     inputList1.clear();
                     String outputStr = resultText.getText().toString();
-                    for (char c : outputStr.toCharArray()){
+                    for (char c : outputStr.toCharArray()) {
                         inputList1.add(String.valueOf(c));
                     }
                     inputList2.clear();
@@ -163,6 +165,35 @@ public class MainActivity extends AppCompatActivity {
             performOperation(operand1, operand2);
         }
 
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (operation != null)
+            outState.putString("operation", operation);
+        if (inputList1 != null && inputList1.size() > 0)
+            outState.putStringArrayList("operand1", inputList1);
+        if (inputList2 != null && inputList2.size() > 0)
+            outState.putStringArrayList("operand2", inputList2);
+        outState.putString("inputText", inputText.getText().toString());
+        outState.putString("resultText", resultText.getText().toString());
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        inputText.setText(savedInstanceState.getString("inputText"));
+        resultText.setText(savedInstanceState.getString("resultText"));
+        if (!savedInstanceState.getString("operation").isEmpty())
+            operation = savedInstanceState.getString("operation");
+        if (savedInstanceState.getStringArrayList("operand1")!=null)
+            inputList1 = savedInstanceState.getStringArrayList("operand1");
+        if (savedInstanceState.getStringArrayList("operand2")!=null)
+            inputList2 = savedInstanceState.getStringArrayList("operand2");
+        if (null!= operation && "".equals(operation)){
+            calculate(inputList1,inputList2);
+        }
     }
 
     private void performOperation(String operand1, String operand2) {
